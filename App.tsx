@@ -1,12 +1,11 @@
-import { StatusBar } from 'expo-status-bar';
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
-import MonsterEnergySlider from './src/components/MonsterEnergySlider'
+import { StyleSheet, View } from 'react-native';
+import { DrinkSlider } from './src/components'
 
 export default function App() {
   return (
     <View style={styles.container}>
-      <MonsterEnergySlider />
+      <DrinkSlider />
     </View>
   );
 }
