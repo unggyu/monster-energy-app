@@ -1,6 +1,6 @@
 import React from 'react'
 import { View, StyleSheet,  Animated } from 'react-native'
-import { Drink, DrinkSliderProps } from 'monster-energy-app'
+import { Drink } from 'monster-energy-app'
 import DrinkBackgrounds from './DrinkBackgrounds'
 import Drinks from './Drinks'
 
@@ -22,7 +22,7 @@ const drinks: Drink[] = [
   }
 ]
 
-const DrinkSlider = (props: DrinkSliderProps) => {
+const DrinkSlider = () => {
   const scrollAnimation = new Animated.Value(0)
   return (
     <View style={styles.container}>

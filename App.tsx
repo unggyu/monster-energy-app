@@ -1,11 +1,12 @@
 import React from 'react';
-import { StyleSheet, View } from 'react-native';
-import { DrinkSlider } from './src/components'
+import { StyleSheet, View } from 'react-native'
+import { SwipeableItems } from './src/components'
+
 
 export default function App() {
   return (
     <View style={styles.container}>
-      <DrinkSlider />
+      <SwipeableItems />
     </View>
   );
 }
