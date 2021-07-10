@@ -23,7 +23,7 @@ const DrinkBackgrounds = (props: DrinkBackgroundsProps) => {
             resizeMode={'cover'}
             source={item.background}
           >
-            <Logo drink={item} />
+            <Logo index={index} drink={item} scrollAnimation={scrollAnimation} />
           </BackgroundImage>
         )
       })}

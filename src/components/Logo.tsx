@@ -4,7 +4,7 @@ import { Animated, Image, StyleSheet, View, ImageSourcePropType, Dimensions } fr
 
 const { width } = Dimensions.get('screen')
 
-const Logo = ({ drink }: LogoProps) => {
+const Logo = ({ index, drink, scrollAnimation }: LogoProps) => {
   // Auto scale image height with React Native: https://stackoverflow.com/questions/42170127/auto-scale-image-height-with-react-native
   const scaleHeight = (source: ImageSourcePropType, desiredWidth: number) => {
     const { width, height } = Image.resolveAssetSource(source)
@@ -12,12 +12,18 @@ const Logo = ({ drink }: LogoProps) => {
   }
   const imageWidth = width * 0.6
   const imageHeight = scaleHeight(drink.logo, imageWidth)
+  const scale = scrollAnimation.interpolate({
+    inputRange: index === 0 ? [0, width] : [width * (index - 1), width * index, width * (index + 1)],
+    outputRange: index === 0 ? [1, 0] : [0, 1, 0],
+    extrapolate: 'clamp'
+  })
   return (
     <View style={styles.logoContainer}>
       <Animated.Image
         style={{
           width: imageWidth,
-          height: imageHeight
+          height: imageHeight,
+          transform: [{ scale }]
         }}
         resizeMode={'contain'}
         source={drink.logo}>
@@ -29,7 +35,7 @@ const Logo = ({ drink }: LogoProps) => {
 const styles = StyleSheet.create({
   logoContainer: {
     width: '100%',
-    marginTop: 30,
+    marginTop: 40,
     justifyContent: 'center',
     alignItems: 'center'
   },

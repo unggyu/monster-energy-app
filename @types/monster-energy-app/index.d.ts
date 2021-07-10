@@ -20,6 +20,8 @@ declare module 'monster-energy-app' {
   }
 
   export interface LogoProps {
+    index: number
     drink: Drink
+    scrollAnimation: Animated.Value
   }
 }
