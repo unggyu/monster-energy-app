@@ -1,3 +1,5 @@
+import { RouteProp } from '@react-navigation/native'
+import { StackNavigationProp, StackScreenProps } from '@react-navigation/stack'
 import { Animated } from 'react-native'
 
 declare module 'monster-energy-app' {
@@ -10,19 +12,24 @@ declare module 'monster-energy-app' {
     item_image: any
     logo: any
   }
+  export type DrinkTuple = {
+    item1: Drink
+    item2: Drink
+  }
 
   export type DrinkSliderProps = {
     navigation: DrinkScreenNavigationProp
   }
-
   export type DrinkSliderState = {
     initialAnimationFinished: boolean
   }
 
-  export type DrinkScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Home'>
+  export type DrinkScreenProps = StackScreenProps<RootStackParamList, 'Home'>
+  export type SwipeableScreenProps = StackScreenProps<RootStackParamList, 'Swipeable'>
+  export type DetailsScreenProps = StackScreenProps<RootStackParamList, 'Details'>
 
-  export type DrinkScreenProps = {
-    navigation: DrinkScreenNavigationProp
+  export type GoBackable = {
+    goBack: DrinkScreenProps['navigation']['goBack']
   }
 
   export interface DrinkBackgroundsProps {
@@ -47,19 +54,16 @@ declare module 'monster-energy-app' {
     drink: Drink
   }
 
-  export interface SwipeableItemsProps {
-
-  }
-
-  export interface SwipeableItemsBackgroundProps {
-    animation: Animated.Value
-  }
-
-  export interface SwipeableItemsState {
-    isCitraCanOnFront: boolean,
+  export type SwipeableDrinksProps = DrinkTuple & GoBackable
+  export type SwipeableDrinksState = {
+    isFirstCanOnFront: boolean,
     swipedLeft: boolean,
     backgroundAnimationValue: 0 | 1,
     initialAnimationFinished: boolean
+  }
+
+  export type SwipeableDrinksBackgroundProps = DrinkTuple & {
+    animation: Animated.Value
   }
 
   export interface AnimateStyle {
@@ -71,11 +75,10 @@ declare module 'monster-energy-app' {
     zIndex?: Animated.AnimatedInterpolation
   }
 
-  export interface GoBackable {
-    goBack(): void
+  export type DetailsProps = GoBackable & {
+    background: any
+    logo: any
   }
-
-  export type DetailsProps = GoBackable & RootStackParamList['Details']
 
   export type TextContainerProps = GoBackable & {
     animations: Animated.Value[]
@@ -83,10 +86,7 @@ declare module 'monster-energy-app' {
 
   export type RootStackParamList = {
     Home: undefined
-    Details: {
-      background: any
-      logo: any
-    }
-    Swipeable: undefined
+    Details: DetailsProps
+    Swipeable: SwipeableDrinksProps
   }
 }

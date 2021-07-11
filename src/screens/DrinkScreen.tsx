@@ -1,10 +1,8 @@
-import { DrinkScreenProps, RootStackParamList } from 'monster-energy-app'
+import { DrinkScreenProps } from 'monster-energy-app'
 import React from 'react'
 import { DrinkSlider } from '../components'
 
-const DrinkScreen = ({
-  navigation
-}: DrinkScreenProps) => (
+const DrinkScreen = ({ navigation }: DrinkScreenProps) => (
   <DrinkSlider navigation={navigation} />
 )
 

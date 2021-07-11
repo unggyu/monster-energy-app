@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import { View, StyleSheet,  Animated, Dimensions, ImageBackground, TouchableWithoutFeedback } from 'react-native'
-import { Drink, DrinkBackgroundsProps, DrinkSliderProps, DrinkSliderState, DrinksProps, LogoProps } from 'monster-energy-app'
+import { Drink, DrinkBackgroundsProps, DrinkSliderProps, DrinkSliderState, DrinksProps, LogoProps, DrinkTuple } from 'monster-energy-app'
 import { Easing } from 'react-native-reanimated'
 
 const { width, height } = Dimensions.get('screen')
@@ -63,8 +63,17 @@ class DrinkSlider extends Component<DrinkSliderProps, DrinkSliderState> {
 
   navigateTo(index: number) {
     const { navigate } = this.props.navigation
-    if (index === 4) {
-      navigate('Swipeable')
+    const swipeableIdx = 4
+    if (index === swipeableIdx) {
+      const drinkTuple: DrinkTuple = {
+        item1: drinks[swipeableIdx],
+        item2: {
+          background: require('../../assets/monster_energy_ultra_paradise_background.png'),
+          item_image: require('../../assets/monster_energy_ultra_paradise_can.png'),
+          logo: require('../../assets/monster_energy_ultra_paradise_logo.png')
+        }
+      }
+      navigate('Swipeable', drinkTuple)
     } else {
       navigate('Details', {
         background: drinks[index].background,

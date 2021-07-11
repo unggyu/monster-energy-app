@@ -1,20 +1,20 @@
 import React, { Component } from 'react'
-import { AnimateStyle, SwipeableItemsBackgroundProps, SwipeableItemsProps, SwipeableItemsState } from 'monster-energy-app'
-import { View, StyleSheet, Dimensions, Animated, PanResponder, Easing, ImageBackground, PanResponderInstance } from 'react-native'
+import { AnimateStyle, SwipeableDrinksBackgroundProps, SwipeableDrinksProps, SwipeableDrinksState } from 'monster-energy-app'
+import { View, StyleSheet, Dimensions, Animated, PanResponder, Easing, ImageBackground, PanResponderInstance, Text, TouchableWithoutFeedback } from 'react-native'
 
 const { width, height } = Dimensions.get('screen')
 const BackgroundImage = Animated.createAnimatedComponent(ImageBackground)
 
-class SwipeableItems extends Component<SwipeableItemsProps, SwipeableItemsState> {
+class SwipeableDrinks extends Component<SwipeableDrinksProps, SwipeableDrinksState> {
   gestureAnimation: Animated.Value
   backgroundAnimation: Animated.Value
   initialAnimation: Animated.Value
   panResponder: PanResponderInstance
 
-  constructor(props: SwipeableItemsProps) {
+  constructor(props: SwipeableDrinksProps) {
     super(props)
     this.state = {
-      isCitraCanOnFront: true,
+      isFirstCanOnFront: true,
       swipedLeft: false,
       backgroundAnimationValue: 1,
       initialAnimationFinished: false
@@ -52,7 +52,7 @@ class SwipeableItems extends Component<SwipeableItemsProps, SwipeableItemsState>
           ]).start(() => {
             gestureAnimation.setValue(0)
             this.setState({
-              isCitraCanOnFront: !this.state.isCitraCanOnFront,
+              isFirstCanOnFront: !this.state.isFirstCanOnFront,
               backgroundAnimationValue
             })
           })
@@ -75,7 +75,7 @@ class SwipeableItems extends Component<SwipeableItemsProps, SwipeableItemsState>
               ]).start(() => {
                 gestureAnimation.setValue(0)
                 this.setState({
-                  isCitraCanOnFront: !this.state.isCitraCanOnFront,
+                  isFirstCanOnFront: !this.state.isFirstCanOnFront,
                   swipedLeft: false,
                   backgroundAnimationValue
                 })
@@ -190,8 +190,14 @@ class SwipeableItems extends Component<SwipeableItemsProps, SwipeableItemsState>
       getFrontStyle,
       getBackStyle
     } = this
+    let {
+      item1,
+      item2,
+      goBack
+    } = this.props;
+    [item1, item2] = [item2, item1]
     const {
-      isCitraCanOnFront,
+      isFirstCanOnFront,
       initialAnimationFinished
     } = this.state
 
@@ -216,32 +222,47 @@ class SwipeableItems extends Component<SwipeableItemsProps, SwipeableItemsState>
       ]
     }
 
-    let frontStyle = isCitraCanOnFront ? getFrontStyle(gestureAnimation) : getBackStyle(gestureAnimation)
+    let frontStyle = isFirstCanOnFront ? getFrontStyle(gestureAnimation) : getBackStyle(gestureAnimation)
     frontStyle = initialAnimationFinished ? frontStyle : initialFrontStyling
-    let backStyle = !isCitraCanOnFront ? getFrontStyle(gestureAnimation) : getBackStyle(gestureAnimation)
+    let backStyle = !isFirstCanOnFront ? getFrontStyle(gestureAnimation) : getBackStyle(gestureAnimation)
     backStyle = initialAnimationFinished ? backStyle : initialBackStyling
 
     return (
       <View style={styles.container}>
-        <Background animation={backgroundAnimation} />
+        <Background
+          animation={backgroundAnimation}
+          item1={item1}
+          item2={item2}
+        />
         <View {...panResponder.panHandlers} style={styles.panContainer}>
           <Animated.Image
-            source={require('../../assets/monster_energy_ultra_paradise_can.png')}
+            source={item1.item_image}
             style={[styles.image, { position: 'absolute', top: 120 }, backStyle]}
             resizeMode={'contain'}
           />
           <Animated.Image
-            source={require('../../assets/monster_energy_ultra_citra_can.png')}
+            source={item2.item_image}
             style={[styles.image, frontStyle]}
             resizeMode={'contain'}
           />
+        </View>
+        <View style={styles.buttonContainer}>
+          <TouchableWithoutFeedback onPress={() => goBack()}>
+            <View style={styles.button}>
+              <Text style={{ color: '#F40009' }}>Come Back</Text>
+            </View>
+          </TouchableWithoutFeedback>
         </View>
       </View>
     )
   }
 }
 
-const Background = ({ animation }: SwipeableItemsBackgroundProps) => {
+const Background = ({
+  animation,
+  item1,
+  item2
+}: SwipeableDrinksBackgroundProps) => {
   const scale = animation.interpolate({
     inputRange: [0, 1],
     outputRange: [1, 0],
@@ -252,7 +273,7 @@ const Background = ({ animation }: SwipeableItemsBackgroundProps) => {
       <BackgroundImage
         style={[styles.bg]}
         resizeMode={'cover'}
-        source={require('../../assets/monster_energy_ultra_paradise_background.png')}
+        source={item1.background}
       >
         <View style={styles.logoContainer}>
           <Animated.Image
@@ -260,14 +281,14 @@ const Background = ({ animation }: SwipeableItemsBackgroundProps) => {
               transform: [{ scale }]
             }]}
             resizeMode={'contain'}
-            source={require('../../assets/monster_energy_ultra_paradise_logo.png')}
+            source={item1.logo}
           />
        </View>
       </BackgroundImage>
       <BackgroundImage
         style={[styles.bg, { opacity: animation }]}
         resizeMode={'cover'}
-        source={require('../../assets/monster_energy_ultra_citra_background.png')}
+        source={item2.background}
       >
         <View style={styles.logoContainer}>
           <Animated.Image
@@ -277,7 +298,7 @@ const Background = ({ animation }: SwipeableItemsBackgroundProps) => {
               }]
             }]}
             resizeMode={'contain'}
-            source={require('../../assets/monster_energy_ultra_logo.png')}
+            source={item2.logo}
           />
         </View>
       </BackgroundImage>
@@ -323,7 +344,25 @@ const styles = StyleSheet.create({
   logo: {
     width: '60%',
     height: 90,
+  },
+  buttonContainer: {
+    position: 'absolute',
+    bottom: 35,
+    left: 0,
+    width: '100%',
+    zIndex: 6,
+  },
+  button: {
+    backgroundColor:'white',
+    borderRadius:100,
+    alignSelf: 'center',
+    paddingLeft:22,
+    paddingRight:22,
+    paddingTop: 12,
+    paddingBottom: 12,
+    justifyContent:'center',
+    alignItems:'center'
   }
 })
 
-export default SwipeableItems
+export default SwipeableDrinks
