@@ -1,58 +1,119 @@
-import React, { useState } from 'react'
-import { useEffect } from 'react'
-import { View, StyleSheet, Dimensions, Animated, PanResponder, Easing } from 'react-native'
+import React, { Component } from 'react'
+import { AnimateStyle, SwipeableItemsBackgroundProps, SwipeableItemsProps, SwipeableItemsState } from 'monster-energy-app'
+import { View, StyleSheet, Dimensions, Animated, PanResponder, Easing, ImageBackground, PanResponderInstance } from 'react-native'
 
 const { width, height } = Dimensions.get('screen')
+const BackgroundImage = Animated.createAnimatedComponent(ImageBackground)
 
-const SwipeableItems = () => {
-  const gestureAnimation = new Animated.Value(0)
-  const panResponder = PanResponder.create({
-    onStartShouldSetPanResponder: (ent, gestureState) => true,
-    onMoveShouldSetPanResponder: (evt, gestureState) => true,
-    onPanResponderMove: (evt, gestureState) => {
-      gestureAnimation.setValue(gestureState.dx)
-    },
-    onPanResponderRelease: (evt, gestureState) => {
-      const { moveX, vx } = gestureState
-      if (moveX >= (width - 150) && vx > 0) {
-        Animated.timing(gestureAnimation, {
-          toValue: width,
-          duration: 350,
-          useNativeDriver: false,
-          easing: Easing.elastic(1.8)
-        }).start(() => {
-          gestureAnimation.setValue(0)
-          setIsCitraCanOnFront(!isCitraCanOnFront)
-        })
-      } else if (moveX <= 250 && vx < 0) {
-        setSwipedLeft(true)
-      } else {
-        Animated.timing(gestureAnimation, {
-          toValue: 0,
-          duration: 300,
-          easing: Easing.elastic(1.9),
-          useNativeDriver: false
-        }).start()
-      }
+class SwipeableItems extends Component<SwipeableItemsProps, SwipeableItemsState> {
+  gestureAnimation: Animated.Value
+  backgroundAnimation: Animated.Value
+  initialAnimation: Animated.Value
+  panResponder: PanResponderInstance
+
+  constructor(props: SwipeableItemsProps) {
+    super(props)
+    this.state = {
+      isCitraCanOnFront: true,
+      swipedLeft: false,
+      backgroundAnimationValue: 1,
+      initialAnimationFinished: false
     }
-  })
-  const [isCitraCanOnFront, setIsCitraCanOnFront] = useState(true)
-  const [swipedLeft, setSwipedLeft] = useState(false)
-
-  useEffect(() => {
-    Animated.timing(gestureAnimation, {
-      toValue: width,
-      duration: 6850,
-      useNativeDriver: false,
-      easing: Easing.elastic(2.4)
-    }).start(() => {
-      gestureAnimation.setValue(0)
-      setIsCitraCanOnFront(!isCitraCanOnFront)
-      setSwipedLeft(false)
+    this.gestureAnimation = new Animated.Value(0)
+    this.backgroundAnimation = new Animated.Value(1)
+    this.initialAnimation = new Animated.Value(0)
+    this.panResponder = PanResponder.create({
+      onStartShouldSetPanResponder: (ent, gestureState) => true,
+      onMoveShouldSetPanResponder: (evt, gestureState) => true,
+      onPanResponderMove: (evt, gestureState) => {
+        this.gestureAnimation.setValue(gestureState.dx)
+      },
+      onPanResponderRelease: (evt, gestureState) => {
+        const { moveX, vx } = gestureState
+        const {
+          gestureAnimation,
+          backgroundAnimation
+        } = this
+        const backgroundAnimationValue = this.state.backgroundAnimationValue === 1 ? 0 : 1
+        if (moveX >= (width - 150) && vx > 0) {
+          Animated.parallel([
+            Animated.timing(gestureAnimation, {
+              toValue: width,
+              duration: 350,
+              useNativeDriver: false,
+              easing: Easing.elastic(1.8)
+            }),
+            Animated.timing(backgroundAnimation, {
+              toValue: backgroundAnimationValue,
+              duration: 350,
+              useNativeDriver: true,
+              easing: Easing.linear
+            })
+          ]).start(() => {
+            gestureAnimation.setValue(0)
+            this.setState({
+              isCitraCanOnFront: !this.state.isCitraCanOnFront,
+              backgroundAnimationValue
+            })
+          })
+        } else if (moveX <= 250 && vx < 0) {
+          this.setState({ swipedLeft: true }, () => {
+            if (this.state.swipedLeft) {
+              Animated.parallel([
+                Animated.timing(gestureAnimation, {
+                  toValue: width,
+                  duration: 500,
+                  useNativeDriver: false,
+                  easing: Easing.elastic(1.9)
+                }),
+                Animated.timing(backgroundAnimation, {
+                  toValue: backgroundAnimationValue,
+                  duration: 350,
+                  useNativeDriver: true,
+                  easing: Easing.linear
+                })
+              ]).start(() => {
+                gestureAnimation.setValue(0)
+                this.setState({
+                  isCitraCanOnFront: !this.state.isCitraCanOnFront,
+                  swipedLeft: false,
+                  backgroundAnimationValue
+                })
+              })
+            }
+          })
+        } else {
+          Animated.timing(gestureAnimation, {
+            toValue: 0,
+            duration: 300,
+            easing: Easing.elastic(1.9),
+            useNativeDriver: false
+          }).start()
+        }
+      }
     })
-  }, [swipedLeft])
+    this.getFrontStyle = this.getFrontStyle.bind(this)
+    this.getBackStyle = this.getBackStyle.bind(this)
+  }
 
-  const getFrontStyle = (animation: Animated.Value) => {
+  componentDidMount() {
+    Animated.timing(this.initialAnimation, {
+      toValue: 1,
+      duration: 500,
+      easing: Easing.elastic(2.3),
+      useNativeDriver: true
+    }).start(() => {
+      this.setState({
+        initialAnimationFinished: true
+      })
+    })
+  }
+
+  getFrontStyle(animation: Animated.Value): AnimateStyle {
+    const {
+      swipedLeft
+    } = this.state
+
     const translateX = animation.interpolate({
       inputRange: [-width, 0, width / 2, width],
       outputRange: [-120, 0, 90, 50],
@@ -84,7 +145,11 @@ const SwipeableItems = () => {
     }
   }
 
-  const getBackStyle = (animation: Animated.Value) => {
+  getBackStyle(animation: Animated.Value): AnimateStyle {
+    const {
+      swipedLeft
+    } = this.state
+
     const translateX = animation.interpolate({
       inputRange: [-width, 0, width],
       outputRange: [80, 50, 0],
@@ -116,23 +181,106 @@ const SwipeableItems = () => {
     }
   }
 
-  const frontStyle = getFrontStyle(gestureAnimation)
-  const backStyle = getBackStyle(gestureAnimation)
+  render() {
+    const {
+      initialAnimation,
+      panResponder,
+      gestureAnimation,
+      backgroundAnimation,
+      getFrontStyle,
+      getBackStyle
+    } = this
+    const {
+      isCitraCanOnFront,
+      initialAnimationFinished
+    } = this.state
 
-  return (
-    <View style={styles.container}>
-      <View {...panResponder.panHandlers} style={styles.panContainer}>
-        <Animated.Image
-          source={require('../../assets/monster_energy_ultra_paradise_can.png')}
-          style={[styles.image, { position: 'absolute', top: 120 }, !isCitraCanOnFront ? frontStyle : backStyle]}
-          resizeMode={'contain'}
-        />
-        <Animated.Image
-          source={require('../../assets/monster_energy_ultra_citra_can.png')}
-          style={[styles.image, isCitraCanOnFront ? frontStyle : backStyle]}
-          resizeMode={'contain'}
-        />
+    const translateX = initialAnimation.interpolate({
+      inputRange: [0, 1],
+      outputRange: [width, 0]
+    })
+    const _translateX = initialAnimation.interpolate({
+      inputRange: [0, 1],
+      outputRange: [width, 50]
+    })
+    const initialFrontStyling = {
+      transform: [
+        { translateX }
+      ]
+    }
+    const initialBackStyling = {
+      transform: [
+        { translateX: _translateX },
+        { rotate: '13deg' },
+        { scale: 0.8 }
+      ]
+    }
+
+    let frontStyle = isCitraCanOnFront ? getFrontStyle(gestureAnimation) : getBackStyle(gestureAnimation)
+    frontStyle = initialAnimationFinished ? frontStyle : initialFrontStyling
+    let backStyle = !isCitraCanOnFront ? getFrontStyle(gestureAnimation) : getBackStyle(gestureAnimation)
+    backStyle = initialAnimationFinished ? backStyle : initialBackStyling
+
+    return (
+      <View style={styles.container}>
+        <Background animation={backgroundAnimation} />
+        <View {...panResponder.panHandlers} style={styles.panContainer}>
+          <Animated.Image
+            source={require('../../assets/monster_energy_ultra_paradise_can.png')}
+            style={[styles.image, { position: 'absolute', top: 120 }, backStyle]}
+            resizeMode={'contain'}
+          />
+          <Animated.Image
+            source={require('../../assets/monster_energy_ultra_citra_can.png')}
+            style={[styles.image, frontStyle]}
+            resizeMode={'contain'}
+          />
+        </View>
       </View>
+    )
+  }
+}
+
+const Background = ({ animation }: SwipeableItemsBackgroundProps) => {
+  const scale = animation.interpolate({
+    inputRange: [0, 1],
+    outputRange: [1, 0],
+    extrapolate: 'clamp'
+  })
+  return (
+    <View style={styles.bgContainer}>
+      <BackgroundImage
+        style={[styles.bg]}
+        resizeMode={'cover'}
+        source={require('../../assets/monster_energy_ultra_paradise_background.png')}
+      >
+        <View style={styles.logoContainer}>
+          <Animated.Image
+            style={[styles.logo, {
+              transform: [{ scale }]
+            }]}
+            resizeMode={'contain'}
+            source={require('../../assets/monster_energy_ultra_paradise_logo.png')}
+          />
+       </View>
+      </BackgroundImage>
+      <BackgroundImage
+        style={[styles.bg, { opacity: animation }]}
+        resizeMode={'cover'}
+        source={require('../../assets/monster_energy_ultra_citra_background.png')}
+      >
+        <View style={styles.logoContainer}>
+          <Animated.Image
+            style={[styles.logo, {
+              transform: [{
+                scale: animation
+              }]
+            }]}
+            resizeMode={'contain'}
+            source={require('../../assets/monster_energy_ultra_logo.png')}
+          />
+        </View>
+      </BackgroundImage>
     </View>
   )
 }
@@ -147,12 +295,34 @@ const styles = StyleSheet.create({
     height,
     justifyContent: 'center',
     alignItems: 'center',
-    zIndex: 10
+    zIndex: 1
   },
   image: {
     marginTop: 100,
     width: '55%',
     height: '60%'
+  },
+  bgContainer: {
+    position: 'absolute',
+    width,
+    height,
+  },
+  bg: {
+    width: '100%',
+    height: '100%',
+    position: 'absolute',
+    alignItems: 'center',
+    justifyContent: 'flex-start',
+  },
+  logoContainer: {
+    width: '100%',
+    marginTop: 50,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  logo: {
+    width: '60%',
+    height: 90,
   }
 })
 

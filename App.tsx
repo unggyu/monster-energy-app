@@ -8,7 +8,7 @@ export default function App() {
     <View style={styles.container}>
       <SwipeableItems />
     </View>
-  );
+  )
 }
 
 const styles = StyleSheet.create({
@@ -17,5 +17,5 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     alignItems: 'center',
     justifyContent: 'center',
-  },
-});
+  }
+})
