@@ -11,20 +11,40 @@ declare module 'monster-energy-app' {
     logo: any
   }
 
+  export type DrinkSliderProps = {
+    navigation: DrinkScreenNavigationProp
+  }
+
+  export type DrinkSliderState = {
+    initialAnimationFinished: boolean
+  }
+
+  export type DrinkScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Home'>
+
+  export type DrinkScreenProps = {
+    navigation: DrinkScreenNavigationProp
+  }
+
   export interface DrinkBackgroundsProps {
     scrollAnimation: Animated.Value
+    initialAnimation: Animated.Value
+    initialAnimationFinished: boolean
     drinks: Drink[]
   }
 
   export interface DrinksProps {
     scrollAnimation: Animated.Value
+    initialAnimation: Animated.Value
     drinks: Drink[]
+    navigateTo(index: number): void
   }
 
   export interface LogoProps {
+    scrollAnimation: Animated.Value
+    initialAnimation: Animated.Value
+    initialAnimationFinished: boolean
     index: number
     drink: Drink
-    scrollAnimation: Animated.Value
   }
 
   export interface SwipeableItemsProps {

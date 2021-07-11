@@ -1,6 +1,7 @@
-import React from 'react'
+import React, { Component } from 'react'
 import { View, StyleSheet,  Animated, Dimensions, ImageBackground } from 'react-native'
-import { Drink, DrinkBackgroundsProps, DrinksProps, LogoProps } from 'monster-energy-app'
+import { Drink, DrinkBackgroundsProps, DrinkSliderProps, DrinkSliderState, DrinksProps, LogoProps } from 'monster-energy-app'
+import { Easing } from 'react-native-reanimated'
 
 const { width, height } = Dimensions.get('screen')
 const BackgroundImage = Animated.createAnimatedComponent(ImageBackground)
@@ -28,33 +29,91 @@ const drinks: Drink[] = [
   }
 ]
 
-const DrinkSlider = () => {
-  const scrollAnimation = new Animated.Value(0)
-  return (
-    <View style={styles.container}>
-      <DrinkBackgrounds scrollAnimation={scrollAnimation} drinks={drinks} />
-      <Animated.ScrollView
-        horizontal
-        pagingEnabled
-        showsHorizontalScrollIndicator={false}
-        scrollEventThrottle={16}
-        onScroll={Animated.event([{
-          nativeEvent: {
-            contentOffset: {
-              x: scrollAnimation
+class DrinkSlider extends Component<DrinkSliderProps, DrinkSliderState> {
+  scrollAnimation: Animated.Value
+  initialAnimation: Animated.Value
+
+  constructor(props: DrinkSliderProps) {
+    super(props)
+    this.state = {
+      initialAnimationFinished: false
+    }
+    this.scrollAnimation = new Animated.Value(0)
+    this.initialAnimation = new Animated.Value(0)
+  }
+
+  componentDidMount() {
+    Animated.timing(this.initialAnimation, {
+      toValue: 1,
+      duration: 500,
+      easing: Easing.elastic(2.4),
+      useNativeDriver: true
+    }).start(() => {
+      this.setState({
+        initialAnimationFinished: true
+      })
+    })
+  }
+
+  navigateTo(index: number) {
+    const { navigate } = this.props.navigation
+    if (index === 3) {
+      navigate('Swipeable')
+    } else {
+      navigate('Details', {
+        background: drinks[index].background,
+        logo: drinks[index].logo
+      })
+    }
+  }
+
+  render() {
+    const { scrollAnimation, initialAnimation } = this
+    const { initialAnimationFinished } = this.state
+
+    return (
+      <View style={styles.container}>
+        <DrinkBackgrounds
+          scrollAnimation={scrollAnimation}
+          initialAnimation={initialAnimation}
+          initialAnimationFinished={initialAnimationFinished}
+          drinks={drinks}
+        />
+        <Animated.ScrollView
+          horizontal
+          pagingEnabled
+          showsHorizontalScrollIndicator={false}
+          scrollEventThrottle={16}
+          style={{ zIndex: drinks.length + 1}}
+          onScroll={Animated.event([{
+            nativeEvent: {
+              contentOffset: {
+                x: scrollAnimation
+              }
             }
-          }
-        }],
-        { useNativeDriver: false })}
-      >
-      <Drinks scrollAnimation={scrollAnimation} drinks={drinks} />
-      </Animated.ScrollView>
-    </View>
-  )
+          }],
+          { useNativeDriver: true })}
+        >
+        <Drinks
+          scrollAnimation={scrollAnimation}
+          initialAnimation={initialAnimation}
+          navigateTo={this.navigateTo}
+          drinks={drinks}
+        />
+        </Animated.ScrollView>
+      </View>
+    )
+  }
 }
 
 const DrinkBackgrounds = (props: DrinkBackgroundsProps) => {
-  const { scrollAnimation, drinks } = props
+  const {
+    scrollAnimation,
+    drinks,
+    initialAnimation,
+    initialAnimationFinished
+  } = props
+
   return (
     <View style={styles.bgContainer}>
       {drinks.map((item, index) => {
@@ -65,12 +124,18 @@ const DrinkBackgrounds = (props: DrinkBackgroundsProps) => {
         })
         return (
           <BackgroundImage
-            key={index}
+            key={`item-${index}`}
             style={[styles.bg, { zIndex: -index, opacity }]}
             resizeMode={'cover'}
             source={item.background}
           >
-            <Logo index={index} drink={item} scrollAnimation={scrollAnimation} />
+            <Logo
+              index={index}
+              drink={item}
+              scrollAnimation={scrollAnimation}
+              initialAnimation={initialAnimation}
+              initialAnimationFinished={initialAnimationFinished}
+            />
           </BackgroundImage>
         )
       })}
@@ -112,7 +177,13 @@ const Drinks = (props: DrinksProps) => {
   )
 }
 
-const Logo = ({ index, drink, scrollAnimation }: LogoProps) => {
+const Logo = ({
+  index,
+  drink,
+  scrollAnimation,
+  initialAnimation,
+  initialAnimationFinished
+}: LogoProps) => {
   const scale = scrollAnimation.interpolate({
     inputRange: index === 0 ?
       [0, width] :
@@ -128,7 +199,12 @@ const Logo = ({ index, drink, scrollAnimation }: LogoProps) => {
   return (
     <View style={styles.logoContainer}>
       <Animated.Image
-        style={[styles.logo, { transform: [{ scale }] }]}
+        style={[styles.logo, {
+          transform: [{
+            scale: index === 0 && !initialAnimationFinished ?
+              initialAnimation : scale
+          }]
+        }]}
         resizeMode={'contain'}
         source={drink.logo}>
       </Animated.Image>
