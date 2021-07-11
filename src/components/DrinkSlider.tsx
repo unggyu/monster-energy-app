@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { View, StyleSheet,  Animated, Dimensions, ImageBackground } from 'react-native'
+import { View, StyleSheet,  Animated, Dimensions, ImageBackground, TouchableWithoutFeedback } from 'react-native'
 import { Drink, DrinkBackgroundsProps, DrinkSliderProps, DrinkSliderState, DrinksProps, LogoProps } from 'monster-energy-app'
 import { Easing } from 'react-native-reanimated'
 
@@ -26,6 +26,11 @@ const drinks: Drink[] = [
     background: require('../../assets/monster_energy_ultra_background.png'),
     item_image: require('../../assets/monster_energy_ultra_can.png'),
     logo: require('../../assets/monster_energy_ultra_logo.png')
+  },
+  {
+    background: require('../../assets/monster_energy_ultra_citra_background.png'),
+    item_image: require('../../assets/monster_energy_ultra_citra_can.png'),
+    logo: require('../../assets/monster_energy_ultra_logo.png')
   }
 ]
 
@@ -40,6 +45,7 @@ class DrinkSlider extends Component<DrinkSliderProps, DrinkSliderState> {
     }
     this.scrollAnimation = new Animated.Value(0)
     this.initialAnimation = new Animated.Value(0)
+    this.navigateTo = this.navigateTo.bind(this)
   }
 
   componentDidMount() {
@@ -57,7 +63,7 @@ class DrinkSlider extends Component<DrinkSliderProps, DrinkSliderState> {
 
   navigateTo(index: number) {
     const { navigate } = this.props.navigation
-    if (index === 3) {
+    if (index === 4) {
       navigate('Swipeable')
     } else {
       navigate('Details', {
@@ -143,8 +149,16 @@ const DrinkBackgrounds = (props: DrinkBackgroundsProps) => {
   )
 }
 
-const Drinks = (props: DrinksProps) => {
-  const { scrollAnimation, drinks } = props
+const Drinks = ({
+  scrollAnimation,
+  initialAnimation,
+  drinks,
+  navigateTo
+}: DrinksProps) => {
+  const translateY = initialAnimation.interpolate({
+    inputRange: [0, 1],
+    outputRange: [300, 0]
+  })
   return (
     <>
       {drinks.map((item, index) => {
@@ -156,21 +170,27 @@ const Drinks = (props: DrinksProps) => {
             width * (index + 1)
           ]
         const outputRange = index === 0 ?
-          ['0deg', '20deg'] :
-          ['-20deg', '0deg', '20deg']
+          ['0deg', '-20deg'] :
+          ['20deg', '0deg', '-20deg']
         const rotate = scrollAnimation.interpolate({
           inputRange,
           outputRange,
           extrapolate: 'clamp'
         })
+
         return (
-          <View key={index} style={styles.itemContainer}>
-            <Animated.Image
-              source={item.item_image}
-              resizeMode={'contain'}
-              style={[styles.item, { transform: [{ rotate }]}]}
-            />
-          </View>
+          <TouchableWithoutFeedback
+            key={index}
+            onPress={() => navigateTo(index)}
+          >
+            <View key={index} style={styles.itemContainer}>
+              <Animated.Image
+                source={item.item_image}
+                resizeMode={'contain'}
+                style={[styles.item, { transform: [{ rotate }]}]}
+              />
+            </View>
+          </TouchableWithoutFeedback>
         )
       })}
     </>

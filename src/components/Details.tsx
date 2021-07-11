@@ -5,19 +5,20 @@ import { Animated, Dimensions, Easing, Image, ImageBackground, StyleSheet, Text,
 const { width, height } = Dimensions.get('window')
 
 class Details extends Component<DetailsProps> {
+  animations: Animated.Value[]
+
   constructor(props: DetailsProps) {
     super(props)
+    this.animations = [
+      new Animated.Value(0),
+      new Animated.Value(0),
+      new Animated.Value(0),
+      new Animated.Value(0),
+      new Animated.Value(0),
+      new Animated.Value(0),
+      new Animated.Value(0)
+    ]
   }
-
-  animations: Animated.Value[] = [
-    new Animated.Value(0),
-    new Animated.Value(0),
-    new Animated.Value(0),
-    new Animated.Value(0),
-    new Animated.Value(0),
-    new Animated.Value(0),
-    new Animated.Value(0)
-  ]
 
   componentDidMount() {
     const { animations } = this
@@ -66,11 +67,10 @@ class Details extends Component<DetailsProps> {
         easing: Easing.elastic(elasticValue),
         useNativeDriver: true
       })
-    ])
+    ]).start()
   }
 
   render() {
-    const logoAnimationValue = this.animations[5]
     const {
       background,
       logo,
@@ -79,7 +79,7 @@ class Details extends Component<DetailsProps> {
     return (
       <ImageBackground
         style={{ flex: 1, justifyContent: 'space-evenly', alignItems: 'center' }}
-        source={require('../../assets/monster_energy_background.png')}
+        source={background}
         resizeMode={'cover'}
       >
         <Animated.View style={[styles.title_container]}>
@@ -158,9 +158,7 @@ class TextContainer extends Component<TextContainerProps> {
           <Text style={styles.normal_text}>0g</Text>
         </Animated.View>
         <TouchableWithoutFeedback onPress={() => goBack()}>
-          <Animated.View
-            style={[styles.button, { transform: [{ translateX: buttonAnimationValue }]}]}
-          >
+          <Animated.View style={[styles.button, { transform: [{ translateX: buttonAnimationValue}]}]}>
             <Text style={{ color: '#F40009'}}>Come Back</Text>
           </Animated.View>
         </TouchableWithoutFeedback>
