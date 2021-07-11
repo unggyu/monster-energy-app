@@ -1,6 +1,10 @@
 import { Animated } from 'react-native'
 
 declare module 'monster-energy-app' {
+  export type AppState = {
+    isReady: boolean
+  }
+
   export interface Drink {
     background: any
     item_image: any
@@ -45,5 +49,24 @@ declare module 'monster-energy-app' {
       { scale: Animated.AnimatedInterpolation | number }
     )[];
     zIndex?: Animated.AnimatedInterpolation
+  }
+
+  export interface GoBackable {
+    goBack(): void
+  }
+
+  export type DetailsProps = GoBackable & RootStackParamList['Details']
+
+  export type TextContainerProps = GoBackable & {
+    animations: Animated.Value[]
+  }
+
+  export type RootStackParamList = {
+    Home: undefined
+    Details: {
+      background: any
+      logo: any
+    }
+    Swipeable: undefined
   }
 }

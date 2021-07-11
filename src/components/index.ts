@@ -1,5 +1,3 @@
-export { default as DrinkBackgrounds } from './DrinkBackgrounds'
-export { default as Drinks } from './Drinks'
+export { default as Details } from './Details'
 export { default as DrinkSlider } from './DrinkSlider'
-export { default as Logo } from './Logo'
 export { default as SwipeableItems } from './SwipeableItems'
