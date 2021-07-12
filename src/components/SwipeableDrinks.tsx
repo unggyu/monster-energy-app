@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
-import { AnimateStyle, SwipeableDrinksBackgroundProps, SwipeableDrinksProps, SwipeableDrinksState } from 'monster-energy-app'
 import { View, StyleSheet, Dimensions, Animated, PanResponder, Easing, ImageBackground, PanResponderInstance, Text, TouchableWithoutFeedback } from 'react-native'
+import { AnimateStyle, SwipeableDrinksBackgroundProps, SwipeableDrinksProps, SwipeableDrinksState } from 'monster-energy-app'
 
 const { width, height } = Dimensions.get('screen')
 const BackgroundImage = Animated.createAnimatedComponent(ImageBackground)
@@ -40,7 +40,7 @@ class SwipeableDrinks extends Component<SwipeableDrinksProps, SwipeableDrinksSta
             Animated.timing(gestureAnimation, {
               toValue: width,
               duration: 350,
-              useNativeDriver: false,
+              useNativeDriver: true,
               easing: Easing.elastic(1.8)
             }),
             Animated.timing(backgroundAnimation, {
@@ -63,7 +63,7 @@ class SwipeableDrinks extends Component<SwipeableDrinksProps, SwipeableDrinksSta
                 Animated.timing(gestureAnimation, {
                   toValue: width,
                   duration: 500,
-                  useNativeDriver: false,
+                  useNativeDriver: true,
                   easing: Easing.elastic(1.9)
                 }),
                 Animated.timing(backgroundAnimation, {
@@ -87,7 +87,7 @@ class SwipeableDrinks extends Component<SwipeableDrinksProps, SwipeableDrinksSta
             toValue: 0,
             duration: 300,
             easing: Easing.elastic(1.9),
-            useNativeDriver: false
+            useNativeDriver: true
           }).start()
         }
       }
@@ -113,7 +113,6 @@ class SwipeableDrinks extends Component<SwipeableDrinksProps, SwipeableDrinksSta
     const {
       swipedLeft
     } = this.state
-
     const translateX = animation.interpolate({
       inputRange: [-width, 0, width / 2, width],
       outputRange: [-120, 0, 90, 50],
@@ -319,7 +318,7 @@ const styles = StyleSheet.create({
     zIndex: 1
   },
   image: {
-    marginTop: 100,
+    marginTop: 50,
     width: '55%',
     height: '60%'
   },

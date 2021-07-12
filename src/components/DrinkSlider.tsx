@@ -1,38 +1,9 @@
 import React, { Component } from 'react'
-import { View, StyleSheet,  Animated, Dimensions, ImageBackground, TouchableWithoutFeedback } from 'react-native'
+import { View, StyleSheet,  Animated, Dimensions, ImageBackground, TouchableWithoutFeedback, Easing } from 'react-native'
 import { Drink, DrinkBackgroundsProps, DrinkSliderProps, DrinkSliderState, DrinksProps, LogoProps, DrinkTuple } from 'monster-energy-app'
-import { Easing } from 'react-native-reanimated'
 
 const { width, height } = Dimensions.get('screen')
 const BackgroundImage = Animated.createAnimatedComponent(ImageBackground)
-
-const drinks: Drink[] = [
-  {
-    background: require('../../assets/monster_energy_background.png'),
-    item_image: require('../../assets/monster_energy_can.png'),
-    logo: require('../../assets/monster_energy_logo.png')
-  },
-  {
-    background: require('../../assets/monster_energy_pipeline_punch_background.png'),
-    item_image: require('../../assets/monster_energy_pipeline_punch_can.png'),
-    logo: require('../../assets/monster_energy_pipeline_punch_logo.png')
-  },
-  {
-    background: require('../../assets/monster_energy_mango_loco_background.png'),
-    item_image: require('../../assets/monster_energy_mango_loco_can.png'),
-    logo: require('../../assets/monster_energy_mango_loco_logo.png')
-  },
-  {
-    background: require('../../assets/monster_energy_ultra_background.png'),
-    item_image: require('../../assets/monster_energy_ultra_can.png'),
-    logo: require('../../assets/monster_energy_ultra_logo.png')
-  },
-  {
-    background: require('../../assets/monster_energy_ultra_citra_background.png'),
-    item_image: require('../../assets/monster_energy_ultra_citra_can.png'),
-    logo: require('../../assets/monster_energy_ultra_logo.png')
-  }
-]
 
 class DrinkSlider extends Component<DrinkSliderProps, DrinkSliderState> {
   scrollAnimation: Animated.Value
@@ -62,16 +33,15 @@ class DrinkSlider extends Component<DrinkSliderProps, DrinkSliderState> {
   }
 
   navigateTo(index: number) {
-    const { navigate } = this.props.navigation
+    const {
+      drinks,
+      navigation : { navigate }
+    } = this.props
     const swipeableIdx = 4
     if (index === swipeableIdx) {
       const drinkTuple: DrinkTuple = {
         item1: drinks[swipeableIdx],
-        item2: {
-          background: require('../../assets/monster_energy_ultra_paradise_background.png'),
-          item_image: require('../../assets/monster_energy_ultra_paradise_can.png'),
-          logo: require('../../assets/monster_energy_ultra_paradise_logo.png')
-        }
+        item2: drinks[drinks.length - 1]
       }
       navigate('Swipeable', drinkTuple)
     } else {
@@ -85,6 +55,8 @@ class DrinkSlider extends Component<DrinkSliderProps, DrinkSliderState> {
   render() {
     const { scrollAnimation, initialAnimation } = this
     const { initialAnimationFinished } = this.state
+    let { drinks } = this.props
+    drinks = drinks.slice(0, drinks.length - 1)
 
     return (
       <View style={styles.container}>

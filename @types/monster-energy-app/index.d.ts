@@ -19,6 +19,7 @@ declare module 'monster-energy-app' {
 
   export type DrinkSliderProps = {
     navigation: DrinkScreenNavigationProp
+    drinks: Drink[]
   }
   export type DrinkSliderState = {
     initialAnimationFinished: boolean
